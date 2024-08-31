@@ -35,6 +35,18 @@ class Movie {
         isAvailable = available;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setReleaseYear(int releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
     @Override
     public String toString() {
         return title + " (" + genre + ", " + releaseYear + ")";
@@ -56,6 +68,14 @@ class Customer {
 
     public String getContactInfo() {
         return contactInfo;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setContactInfo(String contactInfo) {
+        this.contactInfo = contactInfo;
     }
 
     @Override
@@ -108,8 +128,41 @@ class MovieRentalSystem {
         movies.add(movie);
     }
 
+    public void updateMovie(String oldTitle, String newTitle, String newGenre, int newReleaseYear) {
+        Movie movie = findMovieByTitle(oldTitle);
+        if (movie != null) {
+            movie.setTitle(newTitle);
+            movie.setGenre(newGenre);
+            movie.setReleaseYear(newReleaseYear);
+            System.out.println("Movie updated successfully.");
+        } else {
+            System.out.println("Movie not found.");
+        }
+    }
+
     public void addCustomer(Customer customer) {
         customers.add(customer);
+    }
+
+    public void updateCustomer(String oldName, String newName, String newContactInfo) {
+        Customer customer = findCustomerByName(oldName);
+        if (customer != null) {
+            customer.setName(newName);
+            customer.setContactInfo(newContactInfo);
+            System.out.println("Customer updated successfully.");
+        } else {
+            System.out.println("Customer not found.");
+        }
+    }
+
+    public void deleteCustomer(String name) {
+        Customer customer = findCustomerByName(name);
+        if (customer != null) {
+            customers.remove(customer);
+            System.out.println("Customer deleted successfully.");
+        } else {
+            System.out.println("Customer not found.");
+        }
     }
 
     public void listMovies() {
@@ -164,6 +217,24 @@ class MovieRentalSystem {
         }
     }
 
+    public void searchMovies(String title) {
+        System.out.println("Search Results:");
+        for (Movie movie : movies) {
+            if (movie.getTitle().equalsIgnoreCase(title)) {
+                System.out.println(movie);
+            }
+        }
+    }
+
+    public void searchCustomers(String name) {
+        System.out.println("Search Results:");
+        for (Customer customer : customers) {
+            if (customer.getName().equalsIgnoreCase(name)) {
+                System.out.println(customer);
+            }
+        }
+    }
+
     private Movie findMovieByTitle(String title) {
         for (Movie movie : movies) {
             if (movie.getTitle().equalsIgnoreCase(title)) {
@@ -210,7 +281,12 @@ public class Main {
             System.out.println("3. Rent Movie");
             System.out.println("4. Return Movie");
             System.out.println("5. List Rentals");
-            System.out.println("6. Exit");
+            System.out.println("6. Update Movie");
+            System.out.println("7. Update Customer");
+            System.out.println("8. Delete Customer");
+            System.out.println("9. Search Movies");
+            System.out.println("10. Search Customers");
+            System.out.println("11. Exit");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -244,6 +320,42 @@ public class Main {
                     system.listRentals();
                     break;
                 case 6:
+                    System.out.print("Enter the title of the movie to update: ");
+                    String oldTitle = scanner.nextLine();
+                    System.out.print("Enter new title: ");
+                    String newTitle = scanner.nextLine();
+                    System.out.print("Enter new genre: ");
+                    String newGenre = scanner.nextLine();
+                    System.out.print("Enter new release year: ");
+                    int newReleaseYear = scanner.nextInt();
+                    scanner.nextLine();
+                    system.updateMovie(oldTitle, newTitle, newGenre, newReleaseYear);
+                    break;
+                case 7:
+                    System.out.print("Enter the name of the customer to update: ");
+                    String oldName = scanner.nextLine();
+                    System.out.print("Enter new name: ");
+                    String newName = scanner.nextLine();
+                    System.out.print("Enter new contact info: ");
+                    String newContactInfo = scanner.nextLine();
+                    system.updateCustomer(oldName, newName, newContactInfo);
+                    break;
+                case 8:
+                    System.out.print("Enter the name of the customer to delete: ");
+                    String deleteName = scanner.nextLine();
+                    system.deleteCustomer(deleteName);
+                    break;
+                case 9:
+                    System.out.print("Enter movie title to search: ");
+                    String searchTitle = scanner.nextLine();
+                    system.searchMovies(searchTitle);
+                    break;
+                case 10:
+                    System.out.print("Enter customer name to search: ");
+                    String searchName = scanner.nextLine();
+                    system.searchCustomers(searchName);
+                    break;
+                case 11:
                     System.out.println("Exiting...");
                     scanner.close();
                     return;
