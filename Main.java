@@ -6,11 +6,13 @@ class Movie {
     private String title;
     private String genre;
     private int releaseYear;
+    private boolean isAvailable;
 
     public Movie(String title, String genre, int releaseYear) {
         this.title = title;
         this.genre = genre;
         this.releaseYear = releaseYear;
+        this.isAvailable = true;
     }
 
     public String getTitle() {
@@ -23,6 +25,14 @@ class Movie {
 
     public int getReleaseYear() {
         return releaseYear;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
     }
 
     @Override
@@ -54,9 +64,45 @@ class Customer {
     }
 }
 
+class Rental {
+    private Movie movie;
+    private Customer customer;
+    private String rentalDate;
+    private String dueDate;
+
+    public Rental(Movie movie, Customer customer, String rentalDate, String dueDate) {
+        this.movie = movie;
+        this.customer = customer;
+        this.rentalDate = rentalDate;
+        this.dueDate = dueDate;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public String getRentalDate() {
+        return rentalDate;
+    }
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    @Override
+    public String toString() {
+        return movie + " rented by " + customer + " (Due: " + dueDate + ")";
+    }
+}
+
 class MovieRentalSystem {
     private List<Movie> movies = new ArrayList<>();
     private List<Customer> customers = new ArrayList<>();
+    private List<Rental> rentals = new ArrayList<>();
 
     public void addMovie(Movie movie) {
         movies.add(movie);
@@ -79,6 +125,72 @@ class MovieRentalSystem {
             System.out.println(customer);
         }
     }
+
+    public void rentMovie(String title, String customerName, String rentalDate, String dueDate) {
+        Movie movie = findMovieByTitle(title);
+        Customer customer = findCustomerByName(customerName);
+
+        if (movie != null && customer != null) {
+            if (movie.isAvailable()) {
+                movie.setAvailable(false);
+                Rental rental = new Rental(movie, customer, rentalDate, dueDate);
+                rentals.add(rental);
+                System.out.println("Movie rented successfully.");
+            } else {
+                System.out.println("Movie is not available.");
+            }
+        } else {
+            System.out.println("Invalid movie or customer.");
+        }
+    }
+
+    public void returnMovie(String title, String customerName) {
+        Rental rental = findRental(title, customerName);
+
+        if (rental != null) {
+            Movie movie = rental.getMovie();
+            movie.setAvailable(true);
+            rentals.remove(rental);
+            System.out.println("Movie returned successfully.");
+        } else {
+            System.out.println("No rental record found.");
+        }
+    }
+
+    public void listRentals() {
+        System.out.println("Rentals:");
+        for (Rental rental : rentals) {
+            System.out.println(rental);
+        }
+    }
+
+    private Movie findMovieByTitle(String title) {
+        for (Movie movie : movies) {
+            if (movie.getTitle().equalsIgnoreCase(title)) {
+                return movie;
+            }
+        }
+        return null;
+    }
+
+    private Customer findCustomerByName(String name) {
+        for (Customer customer : customers) {
+            if (customer.getName().equalsIgnoreCase(name)) {
+                return customer;
+            }
+        }
+        return null;
+    }
+
+    private Rental findRental(String title, String customerName) {
+        for (Rental rental : rentals) {
+            if (rental.getMovie().getTitle().equalsIgnoreCase(title) &&
+                    rental.getCustomer().getName().equalsIgnoreCase(customerName)) {
+                return rental;
+            }
+        }
+        return null;
+    }
 }
 
 public class Main {
@@ -86,16 +198,19 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         MovieRentalSystem system = new MovieRentalSystem();
 
-        system.addMovie(new Movie("The Matrix", "Sci-Fi", 1999));
         system.addMovie(new Movie("Inception", "Sci-Fi", 2010));
-        system.addCustomer(new Customer("Jane Smith", "098-765-4321"));
+        system.addMovie(new Movie("The Matrix", "Sci-Fi", 1999));
         system.addCustomer(new Customer("John Doe", "123-456-7890"));
+        system.addCustomer(new Customer("Jane Smith", "098-765-4321"));
 
         while (true) {
             System.out.println("\nMovie Rental System");
             System.out.println("1. List Movies");
             System.out.println("2. List Customers");
-            System.out.println("3. Exit");
+            System.out.println("3. Rent Movie");
+            System.out.println("4. Return Movie");
+            System.out.println("5. List Rentals");
+            System.out.println("6. Exit");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -108,6 +223,27 @@ public class Main {
                     system.listCustomers();
                     break;
                 case 3:
+                    System.out.print("Enter movie title: ");
+                    String rentTitle = scanner.nextLine();
+                    System.out.print("Enter customer name: ");
+                    String rentCustomer = scanner.nextLine();
+                    System.out.print("Enter rental date (YYYY-MM-DD): ");
+                    String rentDate = scanner.nextLine();
+                    System.out.print("Enter due date (YYYY-MM-DD): ");
+                    String dueDate = scanner.nextLine();
+                    system.rentMovie(rentTitle, rentCustomer, rentDate, dueDate);
+                    break;
+                case 4:
+                    System.out.print("Enter movie title: ");
+                    String returnTitle = scanner.nextLine();
+                    System.out.print("Enter customer name: ");
+                    String returnCustomer = scanner.nextLine();
+                    system.returnMovie(returnTitle, returnCustomer);
+                    break;
+                case 5:
+                    system.listRentals();
+                    break;
+                case 6:
                     System.out.println("Exiting...");
                     scanner.close();
                     return;
